@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro AI Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-bg"></div>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-seedling"></i>
+                <div>
+                    <h1>Agro AI</h1>
+                    <p data-i18n="control_center">Field Control Center</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-i18n="dashboard">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-target="spoilage">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span data-i18n="spoilage">Spoilage Risk</span>
+                </a>
+                <a href="#" class="nav-item" data-target="planning">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span data-i18n="planning">Crop Planning</span>
+                </a>
+                <a href="#" class="nav-item" data-target="market">
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                    <span data-i18n="market">Market Insights</span>
+                </a>
+                <a href="#" class="nav-item" data-target="logistics">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>Logistics</span>
+                </a>
+                <a href="#" class="nav-item" data-target="guide">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span data-i18n="guide">User Guide</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="location-cluster">
+                    <div class="location-badge">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span id="user-location">Detecting location...</span>
+                    </div>
+                    <div class="meta-row">
+                        <span id="weather-condition">Weather: --</span>
+                        <span id="weather-updated">Updated: --</span>
+                    </div>
+                    
+                    <!-- Manual Location Search -->
+                    <div class="location-search-container">
+                        <div class="location-search-wrapper">
+                            <i class="fa-solid fa-search search-icon"></i>
+                            <input type="text" id="location-search" class="location-search-input" 
+                                   placeholder="Search location (city, village, district...)" 
+                                   data-i18n-placeholder="search_location_placeholder" autocomplete="off">
+                            <button type="button" id="search-location-btn" class="search-btn" aria-label="Search">
+                                <i class="fa-solid fa-magnifying-glass-location"></i>
+                            </button>
+                        </div>
+                        <div id="location-results" class="location-results hidden"></div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="use-live-location" class="pill-btn" type="button">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                        <span data-i18n="use_live_location">Use Live Location</span>
+                    </button>
+                    <select id="lang-switch" class="lang-select" aria-label="Language Switcher">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="hi">🇮🇳 हिंदी</option>
+                        <option value="bn">🇮🇳 বাংলা</option>
+                        <option value="ta">🇮🇳 தமிழ்</option>
+                        <option value="te">🇮🇳 తెలుగు</option>
+                        <option value="mr">🇮🇳 मराठी</option>
+                        <option value="gu">🇮🇳 ગુજરાતી</option>
+                        <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+                        <option value="pa">🇮🇳 ਪੰਜਾਬੀ</option>
+                        <option value="or">🇮🇳 ଓଡ଼ିଆ</option>
+                    </select>
+                    <button class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i></button>
+                    <button class="icon-btn" aria-label="Settings"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </header>
+
+            <div id="content-area" class="content-area">
+                <section id="dashboard-section" class="page-section active">
+                    <div class="hero-panel">
+                        <h2 data-i18n="hero_title">Climate-aware AI decisions in real time</h2>
+                        <p data-i18n="hero_subtitle">Every recommendation below is recalculated from your live GPS weather feed.</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <article class="card stat-card">
+                            <div class="icon-wrapper blue"><i class="fa-solid fa-cloud-sun"></i></div>
+                            <div class="stat-info">
+                                <h3><span data-i18n="weather">Weather</span> <span id="dash-location">(Detecting...)</span></h3>
+                                <p class="value"><span id="dash-temp">--</span>C</p>
+                                <p class="sub-text"><span data-i18n="humidity">Humidity</span> <span id="dash-humidity">--</span>%</p>
+                            </div>
+                        </article>
+
+                        <article class="card stat-card">
+                            <div class="icon-wrapper red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="stat-info">
+                                <h3 data-i18n="spoilage">Spoilage Risk</h3>
+                                <p class="value" id="dash-spoilage-risk">--</p>
+                                <p class="sub-text" id="dash-spoilage-reason">Analyzing storage climate...</p>
+                            </div>
+                        </article>
+
+                        <article class="card stat-card">
+                            <div class="icon-wrapper green"><i class="fa-solid fa-seedling"></i></div>
+                            <div class="stat-info">
+                                <h3 data-i18n="next_crop">Next Crop</h3>
+                                <p class="value" id="dash-crop-rec">--</p>
+                                <p class="sub-text" id="dash-crop-reason">Waiting for weather model</p>
+                            </div>
+                        </article>
+
+                        <article class="card stat-card">
+                            <div class="icon-wrapper yellow"><i class="fa-solid fa-store"></i></div>
+                            <div class="stat-info">
+                                <h3 data-i18n="best_market">Best Market</h3>
+                                <p class="value" id="dash-market-name">--</p>
+                                <p class="sub-text" id="dash-market-profit">Awaiting local rates</p>
+                            </div>
+                        </article>
+
+                        <article class="card stat-card">
+                            <div class="icon-wrapper violet"><i class="fa-solid fa-wave-square"></i></div>
+                            <div class="stat-info">
+                                <h3 data-i18n="climate_signal">Climate Signal</h3>
+                                <p class="value" id="dash-climate-signal">--</p>
+                                <p class="sub-text" id="dash-climate-note">Not enough data yet</p>
+                            </div>
+                        </article>
+
+                        <article class="card chart-card wide">
+                            <h3 data-i18n="yield_forecast">Yield Forecast (Tonnes)</h3>
+                            <div class="chart-container"><canvas id="yieldChart"></canvas></div>
+                        </article>
+
+                        <article class="card chart-card">
+                            <h3 data-i18n="risk_distribution">Risk Distribution</h3>
+                            <div class="chart-container"><canvas id="riskChart"></canvas></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="spoilage-section" class="page-section hidden">
+                    <div class="section-header">
+                        <h2 data-i18n="spoilage_prediction">Spoilage Risk Prediction</h2>
+                        <p class="subtitle" data-i18n="spoilage_subtitle">Enter your storage conditions to calculate spoilage risk</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> <span data-i18n="storage_details">Storage Details</span></h3>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="spoilage-crop" data-i18n="crop_type">Crop Type</label>
+                                    <select id="spoilage-crop" class="form-control">
+                                        <option value="">-- Select Crop --</option>
+                                        <option value="Rice">Rice</option>
+                                        <option value="Wheat">Wheat</option>
+                                        <option value="Maize">Maize</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Tomato">Tomato</option>
+                                        <option value="Cotton">Cotton</option>
+                                        <option value="Soybean">Soybean</option>
+                                        <option value="Pulses">Pulses</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="spoilage-quantity" data-i18n="quantity_quintals">Quantity (Quintals)</label>
+                                    <input type="number" id="spoilage-quantity" class="form-control" placeholder="Enter quantity" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="harvest-date" data-i18n="harvest_date">Harvest Date</label>
+                                    <input type="date" id="harvest-date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expected-sell-date" data-i18n="expected_sell_date">Expected Sell Date</label>
+                                    <input type="date" id="expected-sell-date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="storage-type" data-i18n="storage_type">Storage Type</label>
+                                    <select id="storage-type" class="form-control">
+                                        <option value="">-- Select Storage --</option>
+                                        <option value="open">Open Warehouse</option>
+                                        <option value="sealed">Sealed Unit</option>
+                                        <option value="cold">Cold Storage</option>
+                                        <option value="silo">Grain Silo</option>
+                                        <option value="home">Home Storage</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="packaging-type" data-i18n="packaging_type">Packaging</label>
+                                    <select id="packaging-type" class="form-control">
+                                        <option value="">-- Select Packaging --</option>
+                                        <option value="basic">Basic Jute Bag</option>
+                                        <option value="hdpe">HDPE Bag</option>
+                                        <option value="vacuum">Vacuum Pack</option>
+                                        <option value="crate">Ventilated Crate</option>
+                                        <option value="hermetic">Hermetic Bag</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-temperature-half"></i> <span data-i18n="current_storage_conditions">Current Storage Conditions</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="storage-temp-input" data-i18n="storage_temp">Storage Temperature (°C)</label>
+                                    <input type="number" id="storage-temp-input" class="form-control" placeholder="e.g., 28" min="-10" max="60">
+                                </div>
+                                <div class="form-group">
+                                    <label for="storage-humidity-input" data-i18n="storage_humidity">Storage Humidity (%)</label>
+                                    <input type="number" id="storage-humidity-input" class="form-control" placeholder="e.g., 65" min="0" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="moisture-content" data-i18n="grain_moisture">Grain Moisture Content (%)</label>
+                                    <input type="number" id="moisture-content" class="form-control" placeholder="e.g., 12" min="0" max="35" step="0.1">
+                                </div>
+                            </div>
+
+                            <div class="workflow-actions">
+                                <button id="run-spoilage-workflow" class="action-btn" type="button">
+                                    <i class="fa-solid fa-calculator"></i> <span data-i18n="calculate_spoilage">Calculate Spoilage Risk</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fa-solid fa-gauge-high"></i> <span data-i18n="risk_analysis">Risk Analysis</span></h3>
+                            <div class="risk-display">
+                                <div id="risk-indicator" class="risk-badge neutral">Enter data above</div>
+                                <div id="risk-score-display" class="risk-score-large"></div>
+                                <p class="risk-desc" id="storage-duration-info"></p>
+                            </div>
+                            <div id="risk-breakdown" class="risk-breakdown-container">
+                                <p class="placeholder-text">Fill in storage details and click Calculate</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fa-solid fa-clock"></i> <span data-i18n="shelf_life_estimate">Shelf Life Estimate</span></h3>
+                            <div id="shelf-life-display" class="shelf-life-container">
+                                <p class="placeholder-text" data-i18n="waiting_for_input">Waiting for input...</p>
+                            </div>
+                            <div id="spoilage-actions" class="action-list mt-4"></div>
+                        </div>
+
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-lightbulb"></i> <span data-i18n="storage_recommendations">Storage Recommendations</span></h3>
+                            <div id="storage-recommendations" class="recommendations-grid">
+                                <p class="placeholder-text" data-i18n="analyze_for_recommendations">Analyze to get personalized storage recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="planning-section" class="page-section hidden">
+                    <div class="section-header">
+                        <h2><i class="fa-solid fa-seedling"></i> <span data-i18n="smart_crop_planning">Smart Crop Planning</span></h2>
+                        <p class="subtitle" data-i18n="planning_subtitle">Enter your farm details to get personalized crop recommendations</p>
+                    </div>
+
+                    <div class="planning-grid">
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-map-location-dot"></i> <span data-i18n="farm_details">Farm Details</span></h3>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="farm-location" data-i18n="farm_location">Farm Location</label>
+                                    <input id="farm-location" class="form-control" type="text" placeholder="e.g., Village, District, State">
+                                </div>
+                                <div class="form-group">
+                                    <label for="plan-area" data-i18n="farm_area">Farm Area (acres)</label>
+                                    <input id="plan-area" class="form-control" type="number" min="0.5" step="0.5" placeholder="e.g., 5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="plan-season" data-i18n="target_season">Target Season</label>
+                                    <select id="plan-season" class="form-control">
+                                        <option value="">-- Select Season --</option>
+                                        <option value="kharif">Kharif (June-October)</option>
+                                        <option value="rabi">Rabi (November-March)</option>
+                                        <option value="zaid">Zaid/Summer (March-June)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-mountain"></i> <span data-i18n="soil_information">Soil Information</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="soil-type" data-i18n="soil_type">Soil Type</label>
+                                    <select id="soil-type" class="form-control">
+                                        <option value="">-- Select Soil Type --</option>
+                                        <option value="Alluvial">Alluvial Soil (Indo-Gangetic)</option>
+                                        <option value="Black">Black Soil (Regur)</option>
+                                        <option value="Red">Red Soil</option>
+                                        <option value="Laterite">Laterite Soil</option>
+                                        <option value="Sandy">Sandy Soil</option>
+                                        <option value="Clay">Clay Soil</option>
+                                        <option value="Loamy">Loamy Soil</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="soil-ph" data-i18n="soil_ph">Soil pH (if known)</label>
+                                    <input id="soil-ph" class="form-control" type="number" min="4" max="10" step="0.1" placeholder="e.g., 6.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="soil-nitrogen" data-i18n="nitrogen_level">Nitrogen Level</label>
+                                    <select id="soil-nitrogen" class="form-control">
+                                        <option value="">-- If known --</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-droplet"></i> <span data-i18n="water_climate">Water & Climate</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="plan-irrigation" data-i18n="irrigation_source">Irrigation Source</label>
+                                    <select id="plan-irrigation" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        <option value="rainfed">Rain-fed Only</option>
+                                        <option value="tubewell">Tubewell/Borewell</option>
+                                        <option value="canal">Canal Irrigation</option>
+                                        <option value="drip">Drip Irrigation</option>
+                                        <option value="sprinkler">Sprinkler System</option>
+                                        <option value="pond">Farm Pond/Tank</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="annual-rainfall" data-i18n="annual_rainfall">Annual Rainfall (mm)</label>
+                                    <input id="annual-rainfall" class="form-control" type="number" min="0" placeholder="e.g., 800">
+                                </div>
+                                <div class="form-group">
+                                    <label for="water-availability" data-i18n="water_availability">Water Availability</label>
+                                    <select id="water-availability" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        <option value="abundant">Abundant (Year-round)</option>
+                                        <option value="moderate">Moderate (Seasonal)</option>
+                                        <option value="scarce">Scarce (Limited)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-gears"></i> <span data-i18n="planning_preferences">Planning Preferences</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="plan-last-crop" data-i18n="last_grown_crop">Last Grown Crop</label>
+                                    <select id="plan-last-crop" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        <option value="Rice">Rice</option>
+                                        <option value="Wheat">Wheat</option>
+                                        <option value="Maize">Maize</option>
+                                        <option value="Cotton">Cotton</option>
+                                        <option value="Soybean">Soybean</option>
+                                        <option value="Pulses">Pulses</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Fallow">Fallow/None</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="plan-risk">Risk Preference</label>
+                                    <select id="plan-risk" class="form-control">
+                                        <option value="low">Low Risk (Stable crops)</option>
+                                        <option value="balanced" selected>Balanced</option>
+                                        <option value="high">High Return (Cash crops)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="plan-horizon">Planning Horizon</label>
+                                    <select id="plan-horizon" class="form-control">
+                                        <option value="1">1 Season</option>
+                                        <option value="2">2 Seasons</option>
+                                        <option value="3" selected>3 Seasons (1 Year)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-actions">
+                                <button id="run-planning-workflow" class="action-btn" type="button">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="generate_plan">Generate Crop Plan</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fa-solid fa-list-check"></i> <span data-i18n="input_summary">Input Summary</span></h3>
+                            <div id="planning-input-summary">
+                                <p class="placeholder-text">Fill in farm details above</p>
+                            </div>
+                            <p id="planning-summary" class="workflow-summary mt-4"></p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fa-solid fa-ranking-star"></i> <span data-i18n="recommended_crops">Recommended Crops</span></h3>
+                            <div id="crop-recommendations" class="crop-list">
+                                <p class="placeholder-text" data-i18n="generate_for_recommendations">Generate plan to see recommendations</p>
+                            </div>
+                        </div>
+
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-rotate"></i> <span data-i18n="crop_rotation_plan">Crop Rotation Plan</span></h3>
+                            <p class="subtitle" data-i18n="rotation_subtitle">Multi-season rotation for soil health and yield optimization</p>
+                            <div id="rotation-plan" class="rotation-timeline"></div>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fa-solid fa-leaf"></i> <span data-i18n="soil_regeneration">Soil Regeneration</span></h3>
+                            <div id="soil-regen-recommendations" class="regen-list">
+                                <p class="placeholder-text" data-i18n="run_for_soil_recommendations">Run planning workflow to get soil recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="market-section" class="page-section hidden">
+                    <div class="section-header">
+                        <h2><i class="fa-solid fa-chart-line"></i> <span data-i18n="market_analysis">Market Analysis</span></h2>
+                        <p class="subtitle" data-i18n="market_subtitle">Enter real market prices to calculate best selling options</p>
+                    </div>
+
+                    <div class="dashboard-grid market-grid">
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-rupee-sign"></i> <span data-i18n="enter_market_prices">Enter Market Prices</span></h3>
+                            <p class="subtitle" data-i18n="input_current_prices">Input current prices from your local and nearby mandis</p>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="market-crop" data-i18n="select_crop">Select Crop</label>
+                                    <select id="market-crop" class="form-control">
+                                        <option value="">-- Select Crop --</option>
+                                        <option value="Rice">Rice</option>
+                                        <option value="Wheat">Wheat</option>
+                                        <option value="Maize">Maize</option>
+                                        <option value="Cotton">Cotton</option>
+                                        <option value="Soybean">Soybean</option>
+                                        <option value="Tomato">Tomato</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Groundnut">Groundnut</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="market-qty">Quantity to Sell (Quintal)</label>
+                                    <input id="market-qty" class="form-control" type="number" min="1" placeholder="e.g., 50">
+                                </div>
+                                <div class="form-group">
+                                    <label for="market-grade">Crop Grade/Quality</label>
+                                    <select id="market-grade" class="form-control">
+                                        <option value="A">Grade A (Premium)</option>
+                                        <option value="B" selected>Grade B (Standard)</option>
+                                        <option value="C">Grade C (Fair)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-store"></i> <span data-i18n="local_market">Local Market (Nearest Mandi)</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="local-market-name" data-i18n="market_name">Market Name</label>
+                                    <input id="local-market-name" class="form-control" type="text" placeholder="e.g., Azadpur Mandi">
+                                </div>
+                                <div class="form-group">
+                                    <label for="local-price" data-i18n="current_price">Current Price (₹/Quintal)</label>
+                                    <input id="local-price" class="form-control" type="number" min="0" placeholder="e.g., 2200">
+                                </div>
+                                <div class="form-group">
+                                    <label for="local-distance" data-i18n="distance_km">Distance (km)</label>
+                                    <input id="local-distance" class="form-control" type="number" min="0" placeholder="e.g., 15">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-building"></i> <span data-i18n="alternative_market">Alternative Market</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="nearby-market-name">Market Name</label>
+                                    <input id="nearby-market-name" class="form-control" type="text" placeholder="e.g., Ghazipur Mandi">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nearby-price">Current Price (₹/Quintal)</label>
+                                    <input id="nearby-price" class="form-control" type="number" min="0" placeholder="e.g., 2350">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nearby-distance">Distance (km)</label>
+                                    <input id="nearby-distance" class="form-control" type="number" min="0" placeholder="e.g., 45">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-truck"></i> <span data-i18n="transport_details">Transport Details</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="transport-rate" data-i18n="transport_rate">Transport Rate (₹/km/quintal)</label>
+                                    <input id="transport-rate" class="form-control" type="number" min="0" step="0.5" placeholder="e.g., 2.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="loading-cost" data-i18n="loading_cost">Loading/Unloading (₹)</label>
+                                    <input id="loading-cost" class="form-control" type="number" min="0" placeholder="e.g., 500">
+                                </div>
+                                <div class="form-group">
+                                    <label for="commission-rate" data-i18n="mandi_commission">Mandi Commission (%)</label>
+                                    <input id="commission-rate" class="form-control" type="number" min="0" max="10" step="0.1" value="2.5">
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-actions">
+                                <button id="run-market-workflow" class="action-btn" type="button">
+                                    <i class="fa-solid fa-calculator"></i> <span data-i18n="calculate_best_option">Calculate Best Option</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fa-solid fa-scale-balanced"></i> <span data-i18n="market_comparison">Market Comparison</span></h3>
+                            <div id="market-comparison" class="comparison-display">
+                                <p class="placeholder-text">Enter prices above to compare markets</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fa-solid fa-trophy"></i> <span data-i18n="recommendation">Recommendation</span></h3>
+                            <div id="market-recommendation" class="recommendation-display">
+                                <p class="placeholder-text">Waiting for calculation...</p>
+                            </div>
+                            <div id="profit-breakdown" class="profit-grid mt-4"></div>
+                        </div>
+                        
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-clock"></i> <span data-i18n="selling_strategy">Selling Strategy</span></h3>
+                            <div id="selling-strategy" class="strategy-container">
+                                <p class="placeholder-text" data-i18n="calculate_for_timing">Calculate to get selling timing recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Logistics Section -->
+                <section id="logistics-section" class="page-section hidden">
+                    <div class="section-header">
+                        <h2><i class="fa-solid fa-truck-fast"></i> <span data-i18n="logistics_planning">Logistics Planning</span></h2>
+                        <p class="subtitle" data-i18n="logistics_subtitle">Optimize transport timing and reduce transit losses</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-route"></i> <span data-i18n="transport_details">Transport Details</span></h3>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="logistics-crop" data-i18n="crop_type">Crop Type</label>
+                                    <select id="logistics-crop" class="form-control">
+                                        <option value="">-- Select Crop --</option>
+                                        <option value="Rice">Rice (Grains)</option>
+                                        <option value="Wheat">Wheat (Grains)</option>
+                                        <option value="Vegetables">Vegetables (Perishable)</option>
+                                        <option value="Tomato">Tomato (Highly Perishable)</option>
+                                        <option value="Fruits">Fruits (Perishable)</option>
+                                        <option value="Cotton">Cotton (Non-perishable)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="logistics-qty" data-i18n="quantity_quintals">Quantity (Quintals)</label>
+                                    <input id="logistics-qty" class="form-control" type="number" min="1" placeholder="e.g., 100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="vehicle-type" data-i18n="vehicle_type">Vehicle Type</label>
+                                    <select id="vehicle-type" class="form-control">
+                                        <option value="">-- Select Vehicle --</option>
+                                        <option value="tractor">Tractor Trolley (2-3 tons)</option>
+                                        <option value="pickup">Pickup Truck (1-2 tons)</option>
+                                        <option value="mini">Mini Truck (3-5 tons)</option>
+                                        <option value="truck">Full Truck (10-15 tons)</option>
+                                        <option value="container">Container (20+ tons)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="source-location" data-i18n="source_location">Source Location</label>
+                                    <input id="source-location" class="form-control" type="text" placeholder="e.g., Village name, District">
+                                </div>
+                                <div class="form-group">
+                                    <label for="destination-market" data-i18n="destination_market">Destination Market</label>
+                                    <input id="destination-market" class="form-control" type="text" placeholder="e.g., APMC Mandi, City">
+                                </div>
+                                <div class="form-group">
+                                    <label for="route-distance" data-i18n="distance_km">Distance (km)</label>
+                                    <input id="route-distance" class="form-control" type="number" min="1" placeholder="e.g., 50">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mt-4"><i class="fa-solid fa-calendar-day"></i> <span data-i18n="timing_conditions">Timing & Conditions</span></h4>
+                            <div class="input-grid triple-grid">
+                                <div class="form-group">
+                                    <label for="transport-date" data-i18n="planned_transport_date">Planned Transport Date</label>
+                                    <input id="transport-date" class="form-control" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="departure-time" data-i18n="departure_time">Departure Time</label>
+                                    <select id="departure-time" class="form-control">
+                                        <option value="early-morning">Early Morning (4-6 AM)</option>
+                                        <option value="morning">Morning (6-9 AM)</option>
+                                        <option value="afternoon">Afternoon (12-3 PM)</option>
+                                        <option value="evening">Evening (4-7 PM)</option>
+                                        <option value="night">Night (8 PM onwards)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="current-weather" data-i18n="expected_weather">Expected Weather</label>
+                                    <select id="current-weather" class="form-control">
+                                        <option value="clear">Clear/Sunny</option>
+                                        <option value="cloudy">Cloudy</option>
+                                        <option value="rain">Rainy</option>
+                                        <option value="hot">Hot (>35°C)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-actions">
+                                <button id="run-logistics-workflow" class="action-btn" type="button">
+                                    <i class="fa-solid fa-route"></i> <span data-i18n="plan_logistics">Plan Logistics</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fa-solid fa-coins"></i> <span data-i18n="cost_estimate">Cost Estimate</span></h3>
+                            <div id="logistics-cost" class="cost-display">
+                                <p class="placeholder-text">Enter details to calculate costs</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="transit_risk">Transit Risk</span></h3>
+                            <div id="transit-risk" class="risk-display">
+                                <p class="placeholder-text" data-i18n="waiting_for_analysis">Waiting for analysis...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card wide">
+                            <h3><i class="fa-solid fa-clipboard-check"></i> <span data-i18n="logistics_recommendations">Logistics Recommendations</span></h3>
+                            <div id="logistics-recommendations" class="recommendations-list">
+                                <p class="placeholder-text" data-i18n="click_plan_logistics">Click "Plan Logistics" to get recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide Section -->
+                <section id="guide-section" class="page-section hidden">
+                    <div class="section-header">
+                        <h2 data-i18n="guide_title">🌾 Agro AI - User Guide</h2>
+                        <p class="subtitle" data-i18n="guide_subtitle">Complete guide to reduce post-harvest losses and maximize your farming profits</p>
+                    </div>
+
+                    <div class="guide-container">
+                        <!-- About Section -->
+                        <div class="card guide-card">
+                            <div class="guide-icon"><i class="fa-solid fa-lightbulb"></i></div>
+                            <h3 data-i18n="guide_about_title">About This System</h3>
+                            <p data-i18n="guide_about_desc">Agro AI is an intelligent farming assistant that helps reduce post-harvest losses by up to 40% through real-time climate analysis, smart storage recommendations, and market intelligence.</p>
+                            <ul class="guide-features">
+                                <li><i class="fa-solid fa-check"></i> <span data-i18n="guide_feature_1">AI-powered crop recommendations based on your location</span></li>
+                                <li><i class="fa-solid fa-check"></i> <span data-i18n="guide_feature_2">Real-time weather monitoring with spoilage prediction</span></li>
+                                <li><i class="fa-solid fa-check"></i> <span data-i18n="guide_feature_3">Market price tracking with best selling time advice</span></li>
+                                <li><i class="fa-solid fa-check"></i> <span data-i18n="guide_feature_4">Multilingual support for 10 Indian languages</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Dashboard Guide -->
+                        <div class="card guide-card">
+                            <div class="guide-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+                            <h3 data-i18n="guide_dashboard_title">Dashboard</h3>
+                            <p data-i18n="guide_dashboard_desc">Your command center showing real-time weather, spoilage risk, recommended crops, best markets, and climate signals all in one view.</p>
+                            <div class="guide-steps">
+                                <div class="step"><span class="step-num">1</span> <span data-i18n="guide_step_location">Allow location access for accurate local data</span></div>
+                                <div class="step"><span class="step-num">2</span> <span data-i18n="guide_step_weather">View live weather and humidity conditions</span></div>
+                                <div class="step"><span class="step-num">3</span> <span data-i18n="guide_step_charts">Check yield forecasts and risk distribution charts</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Spoilage Guide -->
+                        <div class="card guide-card">
+                            <div class="guide-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <h3 data-i18n="guide_spoilage_title">Spoilage Risk Prediction</h3>
+                            <p data-i18n="guide_spoilage_desc">Predict how long your harvest will last and get storage optimization tips to minimize losses.</p>
+                            <div class="guide-steps">
+                                <div class="step"><span class="step-num">1</span> <span data-i18n="guide_spoil_step1">Select your crop type (Rice, Wheat, Maize, etc.)</span></div>
+                                <div class="step"><span class="step-num">2</span> <span data-i18n="guide_spoil_step2">Enter harvest date and storage conditions</span></div>
+                                <div class="step"><span class="step-num">3</span> <span data-i18n="guide_spoil_step3">Adjust temperature and humidity sliders</span></div>
+                                <div class="step"><span class="step-num">4</span> <span data-i18n="guide_spoil_step4">Get AI prediction with sell-by date and storage tips</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Planning Guide -->
+                        <div class="card guide-card">
+                            <div class="guide-icon green"><i class="fa-solid fa-calendar-days"></i></div>
+                            <h3 data-i18n="guide_planning_title">Crop Planning</h3>
+                            <p data-i18n="guide_planning_desc">Get smart crop recommendations based on your soil, season, water availability, and market demand.</p>
+                            <div class="guide-steps">
+                                <div class="step"><span class="step-num">1</span> <span data-i18n="guide_plan_step1">Enter your farm area in acres</span></div>
+                                <div class="step"><span class="step-num">2</span> <span data-i18n="guide_plan_step2">Select irrigation type and soil type</span></div>
+                                <div class="step"><span class="step-num">3</span> <span data-i18n="guide_plan_step3">Choose risk preference and planning horizon</span></div>
+                                <div class="step"><span class="step-num">4</span> <span data-i18n="guide_plan_step4">View crop rotation plan and soil regeneration tips</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Market Guide -->
+                        <div class="card guide-card">
+                            <div class="guide-icon yellow"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                            <h3 data-i18n="guide_market_title">Market Intelligence</h3>
+                            <p data-i18n="guide_market_desc">Track prices, predict demand, and find the best time and place to sell your harvest.</p>
+                            <div class="guide-steps">
+                                <div class="step"><span class="step-num">1</span> <span data-i18n="guide_market_step1">View real-time price trends for different crops</span></div>
+                                <div class="step"><span class="step-num">2</span> <span data-i18n="guide_market_step2">Enter your crop quantity and transport costs</span></div>
+                                <div class="step"><span class="step-num">3</span> <span data-i18n="guide_market_step3">Compare local vs nearby market profits</span></div>
+                                <div class="step"><span class="step-num">4</span> <span data-i18n="guide_market_step4">Get 4-week price forecast and optimal selling window</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Chatbot Guide -->
+                        <div class="card guide-card">
+                            <div class="guide-icon violet"><i class="fa-solid fa-comments"></i></div>
+                            <h3 data-i18n="guide_chatbot_title">AI Farming Assistant</h3>
+                            <p data-i18n="guide_chatbot_desc">Ask any farming question in your language! Voice input supported for easy use.</p>
+                            <div class="guide-steps">
+                                <div class="step"><span class="step-num">1</span> <span data-i18n="guide_chat_step1">Click the Help button (bottom right corner)</span></div>
+                                <div class="step"><span class="step-num">2</span> <span data-i18n="guide_chat_step2">Use quick question buttons or type your question</span></div>
+                                <div class="step"><span class="step-num">3</span> <span data-i18n="guide_chat_step3">Tap microphone to ask by voice in your language</span></div>
+                                <div class="step"><span class="step-num">4</span> <span data-i18n="guide_chat_step4">Get AI-powered answers with local context</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Technology Stack -->
+                        <div class="card guide-card wide">
+                            <div class="guide-icon"><i class="fa-solid fa-microchip"></i></div>
+                            <h3 data-i18n="guide_tech_title">Technology Stack</h3>
+                            <div class="tech-grid">
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-brain"></i>
+                                    <span>Google Gemini AI</span>
+                                    <small data-i18n="guide_tech_ai">Natural language understanding</small>
+                                </div>
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-cloud-sun"></i>
+                                    <span>Open-Meteo API</span>
+                                    <small data-i18n="guide_tech_weather">Real-time weather data</small>
+                                </div>
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>OpenStreetMap</span>
+                                    <small data-i18n="guide_tech_geo">Geolocation services</small>
+                                </div>
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-microphone"></i>
+                                    <span>Web Speech API</span>
+                                    <small data-i18n="guide_tech_voice">Voice input in 10 languages</small>
+                                </div>
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span>Chart.js</span>
+                                    <small data-i18n="guide_tech_charts">Interactive visualizations</small>
+                                </div>
+                                <div class="tech-item">
+                                    <i class="fa-solid fa-server"></i>
+                                    <span>Node.js</span>
+                                    <small data-i18n="guide_tech_server">Backend server</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Stats -->
+                        <div class="card guide-card wide impact-card">
+                            <h3 data-i18n="guide_impact_title">🎯 Expected Impact</h3>
+                            <div class="impact-grid">
+                                <div class="impact-stat">
+                                    <span class="impact-value">40%</span>
+                                    <span class="impact-label" data-i18n="guide_impact_loss">Reduction in Post-Harvest Losses</span>
+                                </div>
+                                <div class="impact-stat">
+                                    <span class="impact-value">25%</span>
+                                    <span class="impact-label" data-i18n="guide_impact_profit">Increase in Farmer Profits</span>
+                                </div>
+                                <div class="impact-stat">
+                                    <span class="impact-value">10+</span>
+                                    <span class="impact-label" data-i18n="guide_impact_lang">Indian Languages Supported</span>
+                                </div>
+                                <div class="impact-stat">
+                                    <span class="impact-value">24/7</span>
+                                    <span class="impact-label" data-i18n="guide_impact_available">AI Assistant Available</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <button id="chat-toggle" class="chat-toggle" aria-label="Open AI assistant">
+        <i class="fa-solid fa-comments"></i>
+        <span class="chat-label">Help</span>
+    </button>
+
+    <section id="assistant-panel" class="assistant-panel hidden">
+        <div class="assistant-head">
+            <h3 data-i18n="assistant_title">🧑‍🌾 Ask Farming Expert</h3>
+            <button id="assistant-close" class="icon-btn" aria-label="Close assistant"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="assistant-config">
+            <span class="server-key-note" data-i18n="server_key_active">Ready to help</span>
+        </div>
+        
+        <div class="quick-questions">
+            <p class="quick-label">Quick Questions:</p>
+            <div class="quick-btns">
+                <button class="quick-btn" data-question="quick_q1" data-i18n="quick_q1">What crop should I grow?</button>
+                <button class="quick-btn" data-question="quick_q2" data-i18n="quick_q2">How to store my harvest?</button>
+                <button class="quick-btn" data-question="quick_q3" data-i18n="quick_q3">Best price for my crop?</button>
+                <button class="quick-btn" data-question="quick_q4" data-i18n="quick_q4">Weather forecast?</button>
+                <button class="quick-btn" data-question="quick_q5" data-i18n="quick_q5">Soil improvement tips?</button>
+                <button class="quick-btn" data-question="quick_q6" data-i18n="quick_q6">Pest control help?</button>
+            </div>
+        </div>
+        
+        <div id="assistant-messages" class="assistant-messages">
+            <div class="assistant-msg bot" data-i18n="assistant_welcome">Namaste! Ask me anything about farming - storage, crops, prices, weather. I'm here to help! 🌾</div>
+        </div>
+        <div class="assistant-input">
+            <input id="assistant-prompt" class="form-control" type="text" data-i18n-placeholder="assistant_placeholder" placeholder="Type your question here...">
+            <button id="voice-input" class="voice-btn" type="button" aria-label="Voice input" data-i18n="voice_input">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+            <button id="assistant-send" class="action-btn" type="button" data-i18n="send">Ask</button>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/services/locationService.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
